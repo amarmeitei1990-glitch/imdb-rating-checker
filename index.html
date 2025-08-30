@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IMDb Poster & Rating Checker</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #10141e;
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      flex-direction: column;
+    }
+    h1 { margin-bottom: 20px; }
+    input {
+      padding: 10px;
+      font-size: 16px;
+      border-radius: 6px;
+      border: none;
+      outline: none;
+      width: 250px;
+    }
+    button {
+      padding: 10px 20px;
+      margin-left: 10px;
+      font-size: 16px;
+      border: none;
+      border-radius: 6px;
+      background: #ff9800;
+      color: #000;
+      cursor: pointer;
+    }
+    button:hover { background: #ffa733; }
+    .result {
+      margin-top: 20px;
+      text-align: center;
+    }
+    .result img {
+      max-width: 250px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+      margin-bottom: 15px;
+    }
+    .title {
+      font-size: 20px;
+      font-weight: bold;
+      margin-bottom: 8px;
+    }
+    .rating {
+      color: #ffcc00;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+    .year {
+      color: #bbb;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <h1>IMDb Movie Info</h1>
+  <div>
+    <input id="movieInput" type="text" placeholder="Enter movie name">
+    <button onclick="getMovie()">Show Info</button>
+  </div>
+  <div id="result" class="result"></div>
+
+  <script>
+    const OMDB_KEY = "7b4f54ae"; // 👈 Replace with your OMDb API key
+
+    async function getMovie() {
+      const movieName = document.getElementById("movieInput").value.trim();
+      const result = document.getElementById("result");
+
+      if (!movieName) {
+        result.innerHTML = "⚠️ Please enter a movie name.";
+        return;
+      }
+
+      result.innerHTML = "⏳ Loading...";
+
+      try {
+        const res = await fetch(`https://www.omdbapi.com/?apikey=${OMDB_KEY}&t=${encodeURIComponent(movieName)}&plot=short`);
+        const data = await res.json();
+
+        if (data.Response === "True") {
+          result.innerHTML = `
+            <img src="${data.Poster && data.Poster !== "N/A" ? data.Poster : "https://via.placeholder.com/250x350?text=No+Poster"}" alt="Poster of ${data.Title}">
+            <div class="title">${data.Title}</div>
+            <div class="rating">⭐ IMDb: ${data.imdbRating}/10</div>
+            <div class="year">📅 Released: ${data.Released} (${data.Year})</div>
+          `;
+        } else {
+          result.innerHTML = "❌ Movie not found!";
+        }
+      } catch (e) {
+        result.innerHTML = "⚠️ Error fetching data. Check console.";
+        console.error(e);
+      }
+    }
+  </script>
+</body>
+</html>
